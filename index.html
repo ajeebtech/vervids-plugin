@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>vervids - Version Control</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                <span class="icon">📦</span>
+                <span class="title-text">VERVIDS</span>
+            </div>
+            <div class="header-actions">
+                <button class="icon-button" id="refresh-button" title="Refresh">🔄</button>
+            </div>
+        </div>
+
+        <!-- Changes Panel (VS Code style) -->
+        <div class="changes-panel">
+            <div class="panel-header">
+                <span class="panel-title">CHANGES</span>
+                <span class="badge" id="changes-count">0</span>
+            </div>
+            <div class="changes-list" id="changes-list">
+                <div class="empty-state">
+                    <div class="empty-icon">📝</div>
+                    <div class="empty-text">No changes detected</div>
+                    <div class="empty-hint">Initialize a project to start tracking changes</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Command Input -->
+        <div class="command-section">
+            <div class="command-header">
+                <span class="panel-title">COMMAND</span>
+            </div>
+            <div class="command-input-wrapper">
+                <span class="command-prefix">$</span>
+                <input 
+                    type="text" 
+                    id="command-input" 
+                    class="command-input" 
+                    placeholder="init /path/to/project.aepx (vervids auto-added)"
+                    autocomplete="off"
+                />
+                <button class="execute-button" id="execute-button" title="Execute">▶</button>
+            </div>
+            <div class="command-history" id="command-history"></div>
+        </div>
+
+        <!-- Output Panel -->
+        <div class="output-panel" id="output-panel" style="display: none;">
+            <div class="panel-header">
+                <span class="panel-title">OUTPUT</span>
+                <button class="close-button" id="close-output">✕</button>
+            </div>
+            <div class="output-content" id="output-content"></div>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" src="./lib/CSInterface.js"></script>
+    <script type="text/javascript" src="./index.js"></script>
+</body>
+
+</html>
