@@ -1,15 +1,64 @@
 // Create an instance of CSInterface.
 var csInterface = new CSInterface();
 
-// Wait for jQuery to be available
-function waitForJQuery(callback) {
-    if (window.jQuery) {
-        callback();
-    } else {
-        setTimeout(function() {
-            waitForJQuery(callback);
-        }, 100);
-    }
+// HTTP request helper using XMLHttpRequest (works in all CEP versions)
+function httpRequest(url, options) {
+    options = options || {};
+    var timeout = options.timeout || 30000;
+    var method = options.method || 'GET';
+    
+    return new Promise(function(resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        var timeoutId = setTimeout(function() {
+            xhr.abort();
+            reject(new Error('Request timeout'));
+        }, timeout);
+        
+        xhr.open(method, url, true);
+        
+        // Set headers
+        if (options.headers) {
+            for (var key in options.headers) {
+                if (options.headers.hasOwnProperty(key)) {
+                    xhr.setRequestHeader(key, options.headers[key]);
+                }
+            }
+        }
+        
+        xhr.onload = function() {
+            clearTimeout(timeoutId);
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    resolve(response);
+                } catch (e) {
+                    reject(new Error('Invalid JSON response'));
+                }
+            } else {
+                var error = new Error('HTTP ' + xhr.status + ': ' + xhr.statusText);
+                error.status = xhr.status;
+                error.responseText = xhr.responseText;
+                reject(error);
+            }
+        };
+        
+        xhr.onerror = function() {
+            clearTimeout(timeoutId);
+            reject(new Error('Network error - cannot connect to server'));
+        };
+        
+        xhr.ontimeout = function() {
+            clearTimeout(timeoutId);
+            reject(new Error('Request timeout'));
+        };
+        
+        // Send request
+        if (options.body) {
+            xhr.send(options.body);
+        } else {
+            xhr.send();
+        }
+    });
 }
 
 // State management
@@ -21,32 +70,80 @@ var state = {
     currentInput: ''
 };
 
-// DOM Elements
-var changesList = document.getElementById('changes-list');
-var changesCount = document.getElementById('changes-count');
-var commandInput = document.getElementById('command-input');
-var executeButton = document.getElementById('execute-button');
-var commandHistory = document.getElementById('command-history');
-var outputPanel = document.getElementById('output-panel');
-var outputContent = document.getElementById('output-content');
-var closeOutputButton = document.getElementById('close-output');
-var refreshButton = document.getElementById('refresh-button');
+// DOM Elements (will be initialized after DOM is ready)
+var changesList;
+var changesCount;
+var commandInput;
+var executeButton;
+var commandHistory;
+var outputPanel;
+var outputContent;
+var closeOutputButton;
+var refreshButton;
+
+// Initialize DOM elements
+function initializeDOMElements() {
+    changesList = document.getElementById('changes-list');
+    changesCount = document.getElementById('changes-count');
+    commandInput = document.getElementById('command-input');
+    executeButton = document.getElementById('execute-button');
+    commandHistory = document.getElementById('command-history');
+    outputPanel = document.getElementById('output-panel');
+    outputContent = document.getElementById('output-content');
+    closeOutputButton = document.getElementById('close-output');
+    refreshButton = document.getElementById('refresh-button');
+}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    waitForJQuery(function() {
-        setupEventListeners();
-        loadCommandHistory();
-        updateChangesDisplay();
-        testServerConnection();
-        autoInitialize();
-    });
+    console.log('DOM Content Loaded');
+    
+    // Initialize DOM elements first
+    initializeDOMElements();
+    
+    // Verify critical elements exist
+    if (!commandInput || !executeButton) {
+        console.error('Critical DOM elements not found!');
+        console.error('commandInput:', commandInput);
+        console.error('executeButton:', executeButton);
+        return;
+    }
+    
+    console.log('DOM elements initialized successfully');
+    console.log('commandInput:', commandInput);
+    console.log('executeButton:', executeButton);
+    
+    // Setup immediately - no need to wait for jQuery
+    console.log('Setting up extension...');
+    setupEventListeners();
+    loadCommandHistory();
+    updateChangesDisplay();
+    testServerConnection();
+    autoInitialize();
 });
 
 // Event Listeners
 function setupEventListeners() {
-    // Execute command on button click
-    executeButton.addEventListener('click', executeCommand);
+    // Verify elements exist before adding listeners
+    if (!commandInput || !executeButton) {
+        console.error('Cannot setup event listeners: DOM elements not found');
+        console.error('commandInput:', commandInput);
+        console.error('executeButton:', executeButton);
+        return;
+    }
+    
+    console.log('Setting up event listeners...');
+    console.log('executeButton element:', executeButton);
+    
+    // Execute command on button click - use both native and jQuery for compatibility
+    executeButton.addEventListener('click', function(e) {
+        console.log('Execute button clicked (native listener)!');
+        e.preventDefault();
+        e.stopPropagation();
+        executeCommand();
+    });
+    
+    // No jQuery needed - using native event listeners
     
     // Execute command on Enter key
     commandInput.addEventListener('keypress', function(e) {
@@ -71,7 +168,7 @@ function setupEventListeners() {
     
     // Show command history on focus
     commandInput.addEventListener('focus', function() {
-        if (state.commandHistory.length > 0) {
+        if (commandHistory && state.commandHistory.length > 0) {
             commandHistory.classList.add('visible');
         }
         state.currentInput = commandInput.value;
@@ -80,19 +177,27 @@ function setupEventListeners() {
     // Hide history on blur (with delay to allow clicks)
     commandInput.addEventListener('blur', function() {
         setTimeout(function() {
-            commandHistory.classList.remove('visible');
+            if (commandHistory) {
+                commandHistory.classList.remove('visible');
+            }
         }, 200);
     });
     
     // Close output panel
-    closeOutputButton.addEventListener('click', function() {
-        outputPanel.style.display = 'none';
-    });
+    if (closeOutputButton) {
+        closeOutputButton.addEventListener('click', function() {
+            if (outputPanel) {
+                outputPanel.style.display = 'none';
+            }
+        });
+    }
     
     // Refresh changes
-    refreshButton.addEventListener('click', function() {
-        refreshChanges();
-    });
+    if (refreshButton) {
+        refreshButton.addEventListener('click', function() {
+            refreshChanges();
+        });
+    }
     
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
@@ -103,14 +208,23 @@ function setupEventListeners() {
         
         // Escape to close output
         if (e.key === 'Escape') {
-            outputPanel.style.display = 'none';
-            commandInput.focus();
+            if (outputPanel) {
+                outputPanel.style.display = 'none';
+            }
+            if (commandInput) {
+                commandInput.focus();
+            }
         }
     });
 }
 
 // Navigate command history
 function navigateHistory(direction) {
+    if (!commandInput) {
+        console.error('Command input element not found');
+        return;
+    }
+    
     if (state.commandHistory.length === 0) return;
     
     if (state.historyIndex === -1) {
@@ -132,11 +246,20 @@ function navigateHistory(direction) {
     }
 }
 
-// Execute vervids command
-function executeCommand() {
+// Execute vervids command (make it globally accessible)
+window.executeCommand = function executeCommand() {
+    console.log('executeCommand() called');
+    
+    if (!commandInput) {
+        console.error('Command input element not found');
+        return;
+    }
+    
     var command = commandInput.value.trim();
+    console.log('Command entered:', command);
     
     if (!command) {
+        console.log('No command entered');
         appendOutput('Please enter a command', 'error');
         return;
     }
@@ -164,11 +287,15 @@ function executeCommand() {
     commandInput.value = '';
     
     // Show output panel
-    outputPanel.style.display = 'flex';
+    if (outputPanel) {
+        outputPanel.style.display = 'flex';
+    }
     
     // Display command (show what user typed, but execute full command)
     var displayCommand = command.startsWith('vervids') ? command : 'vervids ' + command;
-    outputContent.innerHTML = '<div class="output-line info">$ ' + escapeHtml(displayCommand) + '</div>';
+    if (outputContent) {
+        outputContent.innerHTML = '<div class="output-line info">$ ' + escapeHtml(displayCommand) + '</div>';
+    }
     
     // Execute command via Node.js server
     executeVervidsCommand(fullCommand);
@@ -185,118 +312,121 @@ function autoInitialize() {
 
 // Test server connection
 function testServerConnection() {
-    if (!window.jQuery) {
-        console.error('jQuery not loaded');
-        return;
-    }
-    
-    // Show output panel for connection status
-    outputPanel.style.display = 'flex';
-    outputContent.innerHTML = '<div class="output-line info">Checking server connection...</div>';
-    
-    $.ajax({
-        type: "GET",
-        url: "http://localhost:3002/test",
-        timeout: 2000,
-        success: function(response) {
+    // Wait a bit for server to be ready if it just started
+    setTimeout(function() {
+        // Show output panel for connection status
+        if (outputPanel) {
+            outputPanel.style.display = 'flex';
+        }
+        if (outputContent) {
+            outputContent.innerHTML = '<div class="output-line info">Checking server connection...</div>';
+        }
+        
+        httpRequest('http://localhost:3002/test', {
+            method: 'GET',
+            timeout: 3000
+        })
+        .then(function(response) {
             console.log('Server connection successful');
             appendOutput('✓ Server connected', 'success');
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            console.error('Server connection failed:', textStatus, errorThrown);
+        })
+        .catch(function(error) {
+            console.error('Server connection failed:', error);
             appendOutput('✗ Server connection failed', 'error');
-            appendOutput('Please start the server: node server/main.js', 'info');
-            appendOutput('Navigate to the extension directory and run: cd server && node main.js', 'info');
-        }
-    });
+            appendOutput('', 'info'); // blank line
+            appendOutput('To start the server manually:', 'info');
+            appendOutput('1. Open Terminal', 'info');
+            appendOutput('2. Run: cd "/Library/Application Support/Adobe/CEP/extensions/vervids"', 'info');
+            appendOutput('3. Run: node server/main.js', 'info');
+            appendOutput('', 'info'); // blank line
+            appendOutput('Or use npm: npm start', 'info');
+            appendOutput('', 'info'); // blank line
+            appendOutput('The server should start automatically, but if it doesn\'t, start it manually.', 'info');
+        });
+    }, 500); // Wait 500ms for server to be ready
 }
 
 // Execute vervids command via terminal
 function executeVervidsCommand(command) {
-    if (!window.jQuery) {
-        appendOutput('Error: jQuery not loaded', 'error');
-        return;
-    }
-    
     // Show loading state
     appendOutput('Executing command...', 'info');
     
     // Use the local server to execute commands
-    $.ajax({
-        type: "POST",
-        url: "http://localhost:3002/execute",
-        contentType: "application/json",
-        data: JSON.stringify({ command: command }),
-        timeout: 300000, // 5 minute timeout
-        success: function(response) {
-            console.log('Command response:', response);
-            if (response.success) {
-                if (response.output) {
-                    // Check if it's the empty output message
-                    if (response.output.includes('(Command executed successfully but produced no output)')) {
-                        appendOutput(response.output, 'info');
-                        appendOutput('This is normal if the command completed without output.', 'info');
-                    } else {
-                        appendOutput(response.output, 'success');
-                    }
-                    
-                    // Also show stderr if it exists and is different from stdout
-                    if (response.stderr && response.stderr !== response.stdout && response.stderr.trim()) {
-                        appendOutput('--- stderr ---', 'info');
-                        appendOutput(response.stderr, 'error');
-                    }
-                } else {
-                    appendOutput('Command executed successfully (no output)', 'success');
-                }
-                if (response.changes) {
-                    updateChanges(response.changes);
-                }
-            } else {
-                appendOutput('Command failed: ' + (response.error || 'Unknown error'), 'error');
-                if (response.code) {
-                    appendOutput('Exit code: ' + response.code, 'error');
-                }
-                if (response.output) {
-                    appendOutput(response.output, 'error');
-                }
-            }
+    httpRequest('http://localhost:3002/execute', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
         },
-        error: function(jqXHR, textStatus, errorThrown) {
-            console.error('AJAX error:', jqXHR, textStatus, errorThrown);
-            var errorMsg = 'Connection error: ';
-            
-            if (textStatus === 'timeout') {
-                errorMsg += 'Request timed out';
-            } else if (textStatus === 'error') {
-                if (jqXHR.status === 0) {
-                    errorMsg += 'Cannot connect to server. Make sure the server is running.';
+        body: JSON.stringify({ command: command }),
+        timeout: 300000 // 5 minute timeout
+    })
+    .then(function(response) {
+        console.log('Command response:', response);
+        if (response.success) {
+            if (response.output) {
+                // Check if it's the empty output message
+                if (response.output.includes('(Command executed successfully but produced no output)')) {
+                    appendOutput(response.output, 'info');
+                    appendOutput('This is normal if the command completed without output.', 'info');
                 } else {
-                    errorMsg += 'HTTP ' + jqXHR.status + ': ' + errorThrown;
+                    appendOutput(response.output, 'success');
+                }
+                
+                // Also show stderr if it exists and is different from stdout
+                if (response.stderr && response.stderr !== response.stdout && response.stderr.trim()) {
+                    appendOutput('--- stderr ---', 'info');
+                    appendOutput(response.stderr, 'error');
                 }
             } else {
-                errorMsg += textStatus + ': ' + errorThrown;
+                appendOutput('Command executed successfully (no output)', 'success');
             }
-            
-            appendOutput(errorMsg, 'error');
-            appendOutput('Start the server with: node server/main.js', 'info');
-            
-            // Try to show response text if available
-            if (jqXHR.responseText) {
-                try {
-                    var errorResponse = JSON.parse(jqXHR.responseText);
-                    if (errorResponse.error) {
-                        appendOutput('Server error: ' + errorResponse.error, 'error');
-                    }
-                } catch (e) {
-                    appendOutput('Response: ' + jqXHR.responseText.substring(0, 200), 'error');
-                }
+            if (response.changes) {
+                updateChanges(response.changes);
+            }
+        } else {
+            appendOutput('Command failed: ' + (response.error || 'Unknown error'), 'error');
+            if (response.code) {
+                appendOutput('Exit code: ' + response.code, 'error');
+            }
+            if (response.output) {
+                appendOutput(response.output, 'error');
             }
         }
+    })
+    .catch(function(error) {
+        console.error('Request error:', error);
+        var errorMsg = 'Connection error: ';
+        
+        if (error.message === 'Request timeout') {
+            errorMsg += 'Request timed out';
+        } else if (error.status) {
+            errorMsg += 'HTTP ' + error.status + ': ' + (error.message || 'Unknown error');
+            if (error.responseText) {
+                try {
+                    var errorResponse = JSON.parse(error.responseText);
+                    if (errorResponse.error) {
+                        errorMsg += ' - ' + errorResponse.error;
+                    }
+                } catch (e) {
+                    // Not JSON, ignore
+                }
+            }
+        } else {
+            errorMsg += error.message || 'Cannot connect to server. Make sure the server is running.';
+        }
+        
+        appendOutput(errorMsg, 'error');
+        appendOutput('Start the server with: node server/main.js', 'info');
     });
 }
 
 // Append output to output panel
 function appendOutput(text, type) {
+    if (!outputContent) {
+        console.error('Output content element not found');
+        return;
+    }
+    
     var line = document.createElement('div');
     line.className = 'output-line ' + (type || '');
     line.textContent = text;
@@ -306,6 +436,11 @@ function appendOutput(text, type) {
 
 // Update changes display
 function updateChangesDisplay() {
+    if (!changesList || !changesCount) {
+        console.error('Changes display elements not found');
+        return;
+    }
+    
     if (state.changes.length === 0) {
         changesList.innerHTML = `
             <div class="empty-state">
@@ -402,6 +537,11 @@ function loadCommandHistory() {
 }
 
 function updateCommandHistoryDisplay() {
+    if (!commandHistory || !commandInput) {
+        console.error('Command history elements not found');
+        return;
+    }
+    
     commandHistory.innerHTML = '';
     state.commandHistory.forEach(function(cmd) {
         var item = document.createElement('div');

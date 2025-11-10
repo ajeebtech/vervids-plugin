@@ -49,7 +49,7 @@
                     placeholder="init /path/to/project.aepx (vervids auto-added)"
                     autocomplete="off"
                 />
-                <button class="execute-button" id="execute-button" title="Execute">▶</button>
+                <button type="button" class="execute-button" id="execute-button" title="Execute" onclick="if (typeof executeCommand === 'function') executeCommand();">▶</button>
             </div>
             <div class="command-history" id="command-history"></div>
         </div>
@@ -64,7 +64,7 @@
         </div>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- jQuery no longer needed - using native fetch API -->
     <script type="text/javascript" src="./lib/CSInterface.js"></script>
     <script type="text/javascript" src="./index.js"></script>
 </body>

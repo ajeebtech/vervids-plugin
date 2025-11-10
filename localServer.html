@@ -5,12 +5,22 @@
     <meta charset="utf-8">
     <script>
         /* This script uses cep_node to start the Node.js server located at '/server/main.js' */
-        var localServer = cep_node.require(__dirname + '/server/main.js')();
+        try {
+            console.log('Starting local server...');
+            var serverPath = __dirname + '/server/main.js';
+            console.log('Server path:', serverPath);
+            var localServer = cep_node.require(serverPath)();
+            console.log('Server started successfully');
+        } catch (error) {
+            console.error('Failed to start server:', error);
+            console.error('You may need to start the server manually: node server/main.js');
+        }
     </script>
-    <title>Import Example App</title>
+    <title>vervids Local Server</title>
 </head>
 
 <body>
+    <div style="display: none;">Server starting...</div>
 </body>
 
 </html>
