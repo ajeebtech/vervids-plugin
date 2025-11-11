@@ -4,6 +4,9 @@
 <head>
     <meta charset="utf-8">
     <title>vervids - Version Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
 </head>
 
@@ -17,7 +20,7 @@
                         <path d="M30.336 73.344C28.672 77.312 26.496 81.792 26.496 84.992C26.496 90.368 29.312 93.184 33.792 93.184C40.704 93.184 43.52 83.712 45.44 77.952L67.584 11.52C70.272 3.456 75.648 0 82.432 0C88.704 0 94.976 4.736 94.976 14.08C94.976 19.456 90.88 24.704 87.68 29.696L50.56 88.96C44.032 99.456 39.808 101.12 33.28 101.12C27.136 101.12 20.864 97.792 18.56 88.96L2.048 25.472C1.024 21.76 0 17.792 0 14.848C0 5.888 7.168 0 14.848 0C21.76 0 27.008 4.608 26.88 11.904C26.752 17.408 19.072 26.24 17.28 28.416C14.336 32 12.928 35.328 14.848 37.248C17.28 39.68 19.072 37.76 22.4 35.2L31.232 28.16C35.84 24.448 39.04 21.632 42.624 21.632C46.848 21.632 49.536 24.704 49.536 28.16C49.536 31.488 46.976 34.688 44.16 41.216L30.336 73.344Z" fill="currentColor"/>
                     </svg>
                 </span>
-                <span class="title-text">VERVIDS</span>
+                <span class="title-text">vervids</span>
             </div>
             <div class="header-actions">
                 <button class="icon-button" id="refresh-button" title="Refresh">
@@ -34,7 +37,7 @@
         <!-- Changes Panel (VS Code style) -->
         <div class="changes-panel">
             <div class="panel-header">
-                <span class="panel-title">CHANGES</span>
+                <span class="panel-title">GRAPH</span>
                 <span class="badge" id="changes-count">0</span>
             </div>
             <div class="changes-list" id="changes-list">
@@ -52,23 +55,23 @@
             </div>
         </div>
 
-        <!-- Command Input -->
+        <!-- Commit Message Input -->
         <div class="command-section">
             <div class="command-header">
-                <span class="panel-title">COMMAND</span>
+                <span class="panel-title">COMMIT MESSAGE</span>
             </div>
             <div class="command-input-wrapper">
-                <span class="command-prefix">$</span>
                 <input 
                     type="text" 
-                    id="command-input" 
+                    id="commit-message-input" 
                     class="command-input" 
-                    placeholder="init /path/to/project.aepx (vervids auto-added)"
+                    placeholder="Enter commit message..."
                     autocomplete="off"
                 />
-                <button type="button" class="execute-button" id="execute-button" title="Execute" onclick="if (typeof executeCommand === 'function') executeCommand();">▶</button>
             </div>
-            <div class="command-history" id="command-history"></div>
+            <div class="commit-button-wrapper">
+                <button type="button" class="commit-button" id="commit-button" title="Commit">Commit</button>
+            </div>
         </div>
 
         <!-- Output Panel -->

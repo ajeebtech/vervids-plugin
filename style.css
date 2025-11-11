@@ -14,6 +14,11 @@
     --vscode-list-hoverBackground: #2a2d2e;
     --vscode-list-activeBackground: #094771;
     --vscode-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    
+    /* Animation durations */
+    --transition-fast: 0.15s;
+    --transition-normal: 0.2s;
+    --transition-slow: 0.3s;
 }
 
 * {
@@ -38,6 +43,16 @@ body {
     flex-direction: column;
     height: 100vh;
     width: 100%;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 /* Header */
@@ -57,7 +72,6 @@ body {
     gap: 8px;
     font-weight: 600;
     font-size: 11px;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
@@ -76,6 +90,8 @@ body {
 
 .title-text {
     color: var(--vscode-text-foreground);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
 }
 
 .header-actions {
@@ -91,19 +107,31 @@ body {
     padding: 4px 8px;
     border-radius: 3px;
     font-size: 12px;
-    transition: background-color 0.2s;
+    transition: all var(--transition-normal) ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
 .icon-button svg {
     display: block;
     stroke: currentColor;
+    transition: transform var(--transition-normal) ease;
 }
 
 .icon-button:hover {
     background-color: var(--vscode-list-hoverBackground);
+    transform: translateY(-1px);
+}
+
+.icon-button:hover svg {
+    transform: rotate(180deg);
+}
+
+.icon-button:active {
+    transform: translateY(0);
+    transition: transform var(--transition-fast) ease;
 }
 
 /* Changes Panel */
@@ -142,12 +170,34 @@ body {
     font-weight: 600;
     min-width: 18px;
     text-align: center;
+    transition: all var(--transition-normal) ease;
+    animation: badgePop 0.3s ease-out;
+}
+
+@keyframes badgePop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.badge:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 4px rgba(14, 99, 156, 0.3);
 }
 
 .changes-list {
     flex: 1;
     overflow-y: auto;
     padding: 4px 0;
+    scroll-behavior: smooth;
 }
 
 .changes-list::-webkit-scrollbar {
@@ -172,12 +222,25 @@ body {
     align-items: center;
     padding: 6px 12px;
     cursor: pointer;
-    transition: background-color 0.15s;
+    transition: all var(--transition-normal) ease;
     border-left: 3px solid transparent;
+    animation: slideInLeft 0.3s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .change-item:hover {
     background-color: var(--vscode-list-hoverBackground);
+    transform: translateX(2px);
 }
 
 .change-item.active {
@@ -217,6 +280,18 @@ body {
     text-align: center;
     color: var(--vscode-text-secondary);
     height: 100%;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .empty-icon {
@@ -227,6 +302,18 @@ body {
     align-items: center;
     justify-content: center;
     color: var(--vscode-text-secondary);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.4;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.05);
+    }
 }
 
 .empty-icon svg {
@@ -234,6 +321,7 @@ body {
     width: 64px;
     height: 64px;
     stroke: currentColor;
+    transition: transform var(--transition-normal) ease;
 }
 
 .empty-text {
@@ -268,52 +356,103 @@ body {
     border-top: 1px solid var(--vscode-border);
 }
 
-.command-prefix {
-    color: var(--vscode-text-secondary);
-    margin-right: 8px;
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-}
-
 .command-input {
     flex: 1;
-    background-color: var(--vscode-input-background);
-    border: 1px solid var(--vscode-input-border);
+    background-color: transparent;
+    border: 1px solid var(--vscode-border);
     color: var(--vscode-text-foreground);
-    padding: 6px 8px;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    border-radius: 3px;
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 6px;
     outline: none;
+    transition: all var(--transition-normal) ease;
+    height: 32px;
+    font-family: var(--vscode-font-family);
+    line-height: 1.5;
 }
 
 .command-input:focus {
+    outline: none;
     border-color: var(--vscode-button-background);
+    box-shadow: 0 0 0 2px rgba(14, 99, 156, 0.1);
+}
+
+.command-input:focus-visible {
+    outline: 2px solid var(--vscode-button-background);
+    outline-offset: 2px;
 }
 
 .command-input::placeholder {
     color: var(--vscode-text-secondary);
+    transition: opacity var(--transition-normal) ease;
 }
 
-.execute-button {
-    margin-left: 8px;
-    background-color: var(--vscode-button-background);
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 3px;
+.command-input:focus::placeholder {
+    opacity: 0.6;
+}
+
+.command-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.commit-button-wrapper {
+    padding: 8px 12px;
+    background-color: var(--vscode-panel-background);
+    border-top: 1px solid var(--vscode-border);
+}
+
+.commit-button {
+    width: 100%;
+    background-color: white;
+    color: #6b7280;
+    border: 1px solid var(--vscode-border);
+    padding: 8px 16px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
-    transition: background-color 0.2s;
+    transition: all var(--transition-normal) ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--vscode-font-family);
+    height: auto;
+    line-height: 1.5;
 }
 
-.execute-button:hover {
-    background-color: var(--vscode-button-hover);
+.commit-button:hover {
+    background-color: white;
+    border-color: var(--vscode-border);
+    color: #6b7280;
 }
 
-.execute-button:active {
+.commit-button:active {
     transform: scale(0.98);
+    transition: transform var(--transition-fast) ease;
+}
+
+.commit-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(14, 99, 156, 0.2);
+    border-color: var(--vscode-button-background);
+}
+
+.commit-button:focus-visible {
+    outline: 2px solid var(--vscode-button-background);
+    outline-offset: 2px;
+}
+
+.commit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.commit-button:disabled:hover {
+    background-color: transparent;
+    border-color: var(--vscode-border);
 }
 
 .command-history {
@@ -348,6 +487,20 @@ body {
     max-height: 200px;
     display: flex;
     flex-direction: column;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 200px;
+    }
 }
 
 .output-panel .panel-header {
@@ -364,12 +517,18 @@ body {
     padding: 2px 6px;
     font-size: 14px;
     border-radius: 3px;
-    transition: background-color 0.2s;
+    transition: all var(--transition-normal) ease;
+    transform: rotate(0deg);
 }
 
 .close-button:hover {
     background-color: var(--vscode-list-hoverBackground);
     color: var(--vscode-text-foreground);
+    transform: rotate(90deg) scale(1.1);
+}
+
+.close-button:active {
+    transform: rotate(90deg) scale(0.95);
 }
 
 .output-content {
@@ -399,7 +558,26 @@ body {
 
 .output-line {
     margin-bottom: 2px;
+    animation: fadeInLine 0.2s ease-out;
+    animation-fill-mode: both;
 }
+
+@keyframes fadeInLine {
+    from {
+        opacity: 0;
+        transform: translateX(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.output-line:nth-child(1) { animation-delay: 0s; }
+.output-line:nth-child(2) { animation-delay: 0.05s; }
+.output-line:nth-child(3) { animation-delay: 0.1s; }
+.output-line:nth-child(4) { animation-delay: 0.15s; }
+.output-line:nth-child(5) { animation-delay: 0.2s; }
 
 .output-line.error {
     color: #f48771;
@@ -411,4 +589,207 @@ body {
 
 .output-line.info {
     color: #4ec9b0;
+}
+
+/* Commit Graph Styles */
+.commit-graph {
+    padding: 2px 0;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.commit-project-header {
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--vscode-text-foreground);
+    border-bottom: 1px solid var(--vscode-border);
+    margin-bottom: 2px;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.commit-item {
+    display: flex;
+    padding: 4px 10px;
+    position: relative;
+    transition: all var(--transition-normal) ease;
+    animation: slideInCommit 0.4s ease-out;
+    animation-fill-mode: both;
+}
+
+@keyframes slideInCommit {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.commit-item:nth-child(1) { animation-delay: 0s; }
+.commit-item:nth-child(2) { animation-delay: 0.1s; }
+.commit-item:nth-child(3) { animation-delay: 0.2s; }
+.commit-item:nth-child(4) { animation-delay: 0.3s; }
+.commit-item:nth-child(5) { animation-delay: 0.4s; }
+.commit-item:nth-child(n+6) { animation-delay: 0.5s; }
+
+.commit-item:hover {
+    background-color: var(--vscode-list-hoverBackground);
+    transform: translateX(4px);
+    padding-left: 16px;
+}
+
+.commit-item.commit-latest {
+    background-color: var(--vscode-list-activeBackground);
+    animation: highlightCommit 0.6s ease-out;
+}
+
+@keyframes highlightCommit {
+    0% {
+        background-color: var(--vscode-list-activeBackground);
+        transform: scale(1);
+    }
+    50% {
+        background-color: rgba(14, 99, 156, 0.3);
+        transform: scale(1.02);
+    }
+    100% {
+        background-color: var(--vscode-list-activeBackground);
+        transform: scale(1);
+    }
+}
+
+.commit-node-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 8px;
+    min-width: 16px;
+}
+
+.commit-node {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--vscode-text-secondary);
+    border: 2px solid var(--vscode-background);
+    z-index: 1;
+    flex-shrink: 0;
+    transition: all var(--transition-normal) ease;
+    animation: nodePulse 0.5s ease-out;
+}
+
+@keyframes nodePulse {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.commit-item:hover .commit-node {
+    transform: scale(1.2);
+    box-shadow: 0 0 8px rgba(14, 99, 156, 0.5);
+}
+
+.commit-node-latest {
+    background-color: var(--vscode-button-background);
+    width: 11px;
+    height: 11px;
+    border-width: 2px;
+    animation: latestNodePulse 1s ease-out infinite;
+}
+
+@keyframes latestNodePulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(14, 99, 156, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 4px rgba(14, 99, 156, 0);
+    }
+}
+
+.commit-line {
+    width: 2px;
+    flex: 1;
+    background-color: var(--vscode-border);
+    min-height: 24px;
+    margin-top: 2px;
+    animation: lineGrow 0.5s ease-out;
+    transform-origin: top;
+}
+
+@keyframes lineGrow {
+    from {
+        transform: scaleY(0);
+        opacity: 0;
+    }
+    to {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
+.commit-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.commit-message {
+    font-size: 10px;
+    color: var(--vscode-text-foreground);
+    margin-bottom: 1px;
+    line-height: 1.2;
+    word-wrap: break-word;
+    transition: color var(--transition-normal) ease;
+}
+
+.commit-item:hover .commit-message {
+    color: var(--vscode-text-foreground);
+}
+
+.commit-item.commit-latest .commit-message {
+    font-weight: 500;
+    animation: textGlow 2s ease-in-out infinite;
+}
+
+@keyframes textGlow {
+    0%, 100% {
+        text-shadow: none;
+    }
+    50% {
+        text-shadow: 0 0 8px rgba(14, 99, 156, 0.3);
+    }
+}
+
+.commit-meta {
+    display: flex;
+    gap: 6px;
+    font-size: 9px;
+    color: var(--vscode-text-secondary);
+    flex-wrap: wrap;
+}
+
+.commit-time,
+.commit-size,
+.commit-assets {
+    white-space: nowrap;
 }
