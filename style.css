@@ -107,7 +107,7 @@ body {
     padding: 4px 8px;
     border-radius: 3px;
     font-size: 12px;
-    transition: all var(--transition-normal) ease;
+    transition: transform 0.5s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -336,123 +336,169 @@ body {
     color: var(--vscode-text-secondary);
 }
 
-/* Command Section */
+/* Command Section - Cursor Style */
 .command-section {
+    padding: 12px;
+    background-color: var(--vscode-background);
     border-top: 1px solid var(--vscode-border);
-    background-color: var(--vscode-panel-background);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.command-header {
-    padding: 6px 12px;
-    background-color: var(--vscode-panel-background);
-    border-bottom: 1px solid var(--vscode-border);
-}
-
-.command-input-wrapper {
+.commit-sync-button {
     display: flex;
     align-items: center;
-    padding: 8px 12px;
-    background-color: var(--vscode-input-background);
-    border-top: 1px solid var(--vscode-border);
-}
-
-.command-input {
-    flex: 1;
-    background-color: transparent;
-    border: 1px solid var(--vscode-border);
-    color: var(--vscode-text-foreground);
-    padding: 6px 10px;
-    font-size: 13px;
+    gap: 8px;
+    background-color: #3c3c3c;
+    border: none;
     border-radius: 6px;
-    outline: none;
-    transition: all var(--transition-normal) ease;
-    height: 32px;
-    font-family: var(--vscode-font-family);
-    line-height: 1.5;
-}
-
-.command-input:focus {
-    outline: none;
-    border-color: var(--vscode-button-background);
-    box-shadow: 0 0 0 2px rgba(14, 99, 156, 0.1);
-}
-
-.command-input:focus-visible {
-    outline: 2px solid var(--vscode-button-background);
-    outline-offset: 2px;
-}
-
-.command-input::placeholder {
-    color: var(--vscode-text-secondary);
-    transition: opacity var(--transition-normal) ease;
-}
-
-.command-input:focus::placeholder {
-    opacity: 0.6;
-}
-
-.command-input:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.commit-button-wrapper {
     padding: 8px 12px;
-    background-color: var(--vscode-panel-background);
-    border-top: 1px solid var(--vscode-border);
-}
-
-.commit-button {
-    width: 100%;
-    background-color: white;
-    color: #6b7280;
-    border: 1px solid var(--vscode-border);
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
+    color: #ffffff;
     font-size: 13px;
     font-weight: 500;
+    cursor: pointer;
     transition: all var(--transition-normal) ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
     font-family: var(--vscode-font-family);
-    height: auto;
-    line-height: 1.5;
+    width: 100%;
+    justify-content: flex-start;
 }
 
-.commit-button:hover {
-    background-color: white;
-    border-color: var(--vscode-border);
-    color: #6b7280;
+.commit-sync-button:hover {
+    background-color: #4a4a4a;
 }
 
-.commit-button:active {
+.commit-sync-button:active {
     transform: scale(0.98);
     transition: transform var(--transition-fast) ease;
 }
 
-.commit-button:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(14, 99, 156, 0.2);
-    border-color: var(--vscode-button-background);
+.commit-sync-button svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    flex-shrink: 0;
 }
 
-.commit-button:focus-visible {
-    outline: 2px solid var(--vscode-button-background);
+.commit-sync-button span {
+    flex: 1;
+    text-align: left;
+}
+
+.commit-separator {
+    width: 1px;
+    height: 16px;
+    background-color: #555;
+    flex-shrink: 0;
+}
+
+.cursor-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #2a2a2a;
+    border-radius: 12px;
+    padding: 10px 12px;
+    transition: all var(--transition-normal) ease;
+}
+
+.cursor-input-container:focus-within {
+    background-color: #2f2f2f;
+}
+
+.cursor-input {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    color: #d4d4d4;
+    padding: 0;
+    font-size: 13px;
+    outline: none;
+    resize: none;
+    height: 20px;
+    min-height: 20px;
+    max-height: 120px;
+    font-family: var(--vscode-font-family);
+    line-height: 1.5;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.cursor-input::placeholder {
+    color: #858585;
+}
+
+.cursor-input:focus {
+    outline: none;
+}
+
+.cursor-input::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cursor-input::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cursor-input::-webkit-scrollbar-thumb {
+    background: #3c3c3c;
+    border-radius: 3px;
+}
+
+.cursor-input::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.cursor-send-button {
+    background-color: #3c3c3c;
+    border: none;
+    color: #d4d4d4;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    flex-shrink: 0;
+    transition: all var(--transition-normal) ease;
+}
+
+.cursor-send-button:hover {
+    background-color: #4a4a4a;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.cursor-send-button:active {
+    transform: translateY(0) scale(0.95);
+    transition: transform var(--transition-fast) ease;
+}
+
+.cursor-send-button:focus {
+    outline: none;
+}
+
+.cursor-send-button:focus-visible {
+    outline: 2px solid rgba(14, 99, 156, 0.5);
     outline-offset: 2px;
 }
 
-.commit-button:disabled {
-    opacity: 0.5;
+.cursor-send-button:disabled {
+    opacity: 0.4;
     cursor: not-allowed;
     pointer-events: none;
 }
 
-.commit-button:disabled:hover {
-    background-color: transparent;
-    border-color: var(--vscode-border);
+.cursor-send-button svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
 }
 
 .command-history {

@@ -57,20 +57,20 @@
 
         <!-- Commit Message Input -->
         <div class="command-section">
-            <div class="command-header">
-                <span class="panel-title">COMMIT MESSAGE</span>
-            </div>
-            <div class="command-input-wrapper">
-                <input 
-                    type="text" 
+            <button type="button" class="commit-sync-button" id="commit-sync-button" title="Commit & Sync">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>commit & sync</span>
+            </button>
+            <div class="cursor-input-container">
+                <textarea 
                     id="commit-message-input" 
-                    class="command-input" 
+                    class="cursor-input" 
                     placeholder="Enter commit message..."
                     autocomplete="off"
-                />
-            </div>
-            <div class="commit-button-wrapper">
-                <button type="button" class="commit-button" id="commit-button" title="Commit">Commit</button>
+                    rows="1"
+                ></textarea>
             </div>
         </div>
 

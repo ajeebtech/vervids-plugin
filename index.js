@@ -96,6 +96,7 @@ function startServerAutomatically() {
 
 // Check if server is running, and start if needed
 function ensureServerRunning() {
+    console.log('Checking if server is running...');
     httpRequest('http://localhost:3002/test', {
         method: 'GET',
         timeout: 1000
@@ -184,6 +185,7 @@ var changesList;
 var changesCount;
 var commitMessageInput;
 var commitButton;
+var commitSyncButton;
 var outputPanel;
 var outputContent;
 var closeOutputButton;
@@ -195,6 +197,7 @@ function initializeDOMElements() {
     changesCount = document.getElementById('changes-count');
     commitMessageInput = document.getElementById('commit-message-input');
     commitButton = document.getElementById('commit-button');
+    commitSyncButton = document.getElementById('commit-sync-button');
     outputPanel = document.getElementById('output-panel');
     outputContent = document.getElementById('output-content');
     closeOutputButton = document.getElementById('close-output');
@@ -240,23 +243,39 @@ document.addEventListener('DOMContentLoaded', function() {
 // Event Listeners
 function setupEventListeners() {
     // Verify elements exist before adding listeners
-    if (!commitMessageInput || !commitButton) {
+    if (!commitMessageInput) {
         console.error('Cannot setup event listeners: DOM elements not found');
         console.error('commitMessageInput:', commitMessageInput);
-        console.error('commitButton:', commitButton);
         return;
     }
     
     console.log('Setting up event listeners...');
-    console.log('commitButton element:', commitButton);
     
-    // Commit on button click
-    commitButton.addEventListener('click', function(e) {
-        console.log('Commit button clicked!');
-        e.preventDefault();
-        e.stopPropagation();
-        commitChanges();
-    });
+    // Commit & Sync button click
+    if (commitSyncButton) {
+        commitSyncButton.addEventListener('click', function(e) {
+            console.log('Commit & Sync button clicked!');
+            e.preventDefault();
+            e.stopPropagation();
+            commitChanges();
+        });
+    }
+    
+    // Auto-resize textarea to fit content (like Cursor's input)
+    function autoResizeTextarea() {
+        if (commitMessageInput) {
+            commitMessageInput.style.height = 'auto';
+            var newHeight = Math.min(commitMessageInput.scrollHeight, 120); // Max 120px
+            commitMessageInput.style.height = newHeight + 'px';
+        }
+    }
+    
+    // Auto-resize on input
+    if (commitMessageInput) {
+        commitMessageInput.addEventListener('input', autoResizeTextarea);
+        // Initial resize
+        autoResizeTextarea();
+    }
     
     // Commit on Enter key (but allow Shift+Enter for new line)
     commitMessageInput.addEventListener('keypress', function(e) {
@@ -278,6 +297,16 @@ function setupEventListeners() {
     // Refresh changes
     if (refreshButton) {
         refreshButton.addEventListener('click', function() {
+            console.log('Refresh button clicked!');
+            // Add visual feedback - rotate the refresh icon
+            if (refreshButton) {
+                refreshButton.style.transform = 'rotate(360deg)';
+                setTimeout(function() {
+                    if (refreshButton) {
+                        refreshButton.style.transform = 'rotate(0deg)';
+                    }
+                }, 500);
+            }
             refreshCommitGraph();
         });
     }
@@ -320,8 +349,11 @@ function commitChanges() {
         return;
     }
     
-    // Clear input first
+    // Clear input first and reset height
     commitMessageInput.value = '';
+    if (commitMessageInput.style) {
+        commitMessageInput.style.height = 'auto';
+    }
     
     // Don't show output panel - keep it hidden
     if (outputContent) {
@@ -369,30 +401,76 @@ function commitChanges() {
 }
 
 
-// Parse vervids list output to find current project number
+// Parse vervids list output to extract all projects with their names and numbers
 function parseProjectList(output) {
     try {
         var lines = output.split('\n');
+        var projects = [];
         var currentProject = null;
         
-        // Find the line with the arrow (→) indicating current project
+        // Parse all project lines (format: "  02  sloppy" or "→ 02  sloppy")
         for (var i = 0; i < lines.length; i++) {
             var line = lines[i].trim();
-            if (line.indexOf('→') !== -1) {
-                // Extract project number (format: "→ 02  sloppy")
-                var match = line.match(/→\s*(\d+)/);
-                if (match) {
-                    currentProject = parseInt(match[1], 10);
-                    break;
+            
+            // Match lines with project number and name (with or without arrow)
+            // Format: "→ 02  sloppy" or "  02  sloppy" or "02  sloppy"
+            var match = line.match(/→?\s*(\d+)\s+(.+)/);
+            if (match) {
+                var projectNumber = parseInt(match[1], 10);
+                var projectName = match[2].trim();
+                
+                projects.push({
+                    number: projectNumber,
+                    name: projectName
+                });
+                
+                // If this line has the arrow, mark it as current
+                if (line.indexOf('→') !== -1) {
+                    currentProject = projectNumber;
                 }
             }
         }
         
-        return currentProject;
+        return {
+            projects: projects,
+            currentProject: currentProject
+        };
     } catch (e) {
         console.error('Error parsing project list:', e);
+        return {
+            projects: [],
+            currentProject: null
+        };
+    }
+}
+
+// Find project by name in the project list
+function findProjectByName(projectList, projectName) {
+    if (!projectList || !projectList.projects || !projectName) {
         return null;
     }
+    
+    // Normalize project name (remove extension, lowercase for comparison)
+    var normalizedName = projectName.toLowerCase().replace(/\.(aep|aepx)$/i, '').trim();
+    
+    // Try exact match first
+    for (var i = 0; i < projectList.projects.length; i++) {
+        var project = projectList.projects[i];
+        var normalizedProjectName = project.name.toLowerCase().trim();
+        
+        // Exact match
+        if (normalizedProjectName === normalizedName) {
+            return project.number;
+        }
+        
+        // Match if project name contains the file name or vice versa
+        if (normalizedProjectName.indexOf(normalizedName) !== -1 || 
+            normalizedName.indexOf(normalizedProjectName) !== -1) {
+            return project.number;
+        }
+    }
+    
+    return null;
 }
 
 // Parse vervids list <number> output to extract commit data
@@ -468,7 +546,15 @@ function renderCommitGraph(commitData) {
     if (!changesList) return;
     
     if (!commitData || commitData.commits.length === 0) {
-        // Show empty state
+        // Show empty state with project name if available
+        var emptyText = 'No commits found';
+        var emptyHint = 'Initialize a project to start tracking commits';
+        
+        if (commitData && commitData.projectName) {
+            emptyText = 'No commits found for "' + escapeHtml(commitData.projectName) + '"';
+            emptyHint = 'Make your first commit to start tracking changes';
+        }
+        
         changesList.innerHTML = '<div class="empty-state">' +
             '<div class="empty-icon">' +
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64" color="currentColor" fill="none">' +
@@ -476,9 +562,16 @@ function renderCommitGraph(commitData) {
             '<path d="M19.5 18C19.5 18 18.5 18.7628 18.5 20C18.5 21.2372 19.5 22 19.5 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />' +
             '<path d="M9 10C9 10 11.2095 13 12 13C12.7906 13 15 10 15 10M12 12.5V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />' +
             '</svg></div>' +
-            '<div class="empty-text">No commits found</div>' +
-            '<div class="empty-hint">Initialize a project to start tracking commits</div>' +
+            '<div class="empty-text">' + emptyText + '</div>' +
+            '<div class="empty-hint">' + emptyHint + '</div>' +
             '</div>';
+        
+        // Update badge to 0
+        var changesCount = document.getElementById('changes-count');
+        if (changesCount) {
+            changesCount.textContent = '0';
+        }
+        
         return;
     }
     
@@ -535,35 +628,173 @@ function renderCommitGraph(commitData) {
     changesList.innerHTML = html;
 }
 
-// Refresh commit graph
+// Refresh commit graph - automatically detect project from current .aep file
 function refreshCommitGraph() {
-    // First, run vervids list to get current project (silently)
-    executeVervidsCommand('vervids list', function(response) {
-        if (response && response.success) {
-            var projectNumber = parseProjectList(response.stdout || response.output);
-            if (projectNumber !== null) {
-                // Run vervids list <number> to get commits (silently)
-                executeVervidsCommand('vervids list ' + projectNumber, function(commitResponse) {
-                    if (commitResponse && commitResponse.success) {
-                        var commitData = parseCommitList(commitResponse.stdout || commitResponse.output);
-                        renderCommitGraph(commitData);
-                    } else {
-                        console.error('Failed to get commits:', commitResponse);
+    try {
+        console.log('=== refreshCommitGraph() called ===');
+        
+        // Show loading state
+        var changesList = document.getElementById('changes-list');
+        if (changesList) {
+            changesList.innerHTML = '<div class="empty-state"><div class="empty-text">Loading...</div></div>';
+        } else {
+            console.error('❌ changes-list element not found!');
+            return;
+        }
+        
+        // First, get the current project file path from After Effects
+        var script = 'getProjectFilePath()';
+        console.log('Calling After Effects script:', script);
+        csInterface.evalScript(script, function(result) {
+            try {
+                console.log('getProjectFilePath() result:', result);
+        var projectPath = null;
+        var projectName = null;
+        
+        if (result && result !== 'null' && !result.startsWith('Error')) {
+            projectPath = result;
+            // Extract project name from path (filename without extension)
+            var pathParts = projectPath.split(/[/\\]/);
+            var fileName = pathParts[pathParts.length - 1];
+            projectName = fileName.replace(/\.(aep|aepx)$/i, '');
+            console.log('Current project file:', projectPath);
+            console.log('Extracted project name:', projectName);
+        } else {
+            console.log('Project not saved yet or error getting path:', result);
+            // Still try to get projects from vervids list even if project not saved
+        }
+        
+                // Get vervids list to find matching project
+                console.log('Executing: vervids list');
+                executeVervidsCommand('vervids list', function(response) {
+                    try {
+                        console.log('vervids list response:', response);
+                        
+                        if (response && response.success) {
+                            var output = response.stdout || response.output || '';
+                            console.log('vervids list output:', output);
+                            console.log('Output length:', output.length);
+                            
+                            var projectList = parseProjectList(output);
+                            console.log('Parsed project list:', projectList);
+                            console.log('Found', projectList.projects.length, 'projects');
+                            console.log('Current project (arrow):', projectList.currentProject);
+                            
+                            var projectNumber = null;
+                            
+                            // PRIORITY 1: Use arrow-marked current project (most reliable)
+                            if (projectList.currentProject !== null) {
+                                projectNumber = projectList.currentProject;
+                                console.log('✓ Using arrow-marked current project:', projectNumber);
+                            }
+                            
+                            // PRIORITY 2: Try to match by project name if no arrow-marked project
+                            if (projectNumber === null && projectName) {
+                                projectNumber = findProjectByName(projectList, projectName);
+                                if (projectNumber !== null) {
+                                    console.log('✓ Found project by name:', projectName, '→ Project #', projectNumber);
+                                } else {
+                                    console.log('✗ No match found for project name:', projectName);
+                                    console.log('Available projects:', projectList.projects.map(function(p) { return p.name; }));
+                                }
+                            }
+                            
+                            // PRIORITY 3: Use first project if nothing else works
+                            if (projectNumber === null && projectList.projects.length > 0) {
+                                projectNumber = projectList.projects[0].number;
+                                console.log('⚠ Using first available project:', projectNumber);
+                            }
+                            
+                            // If we found a project, show its commits
+                            if (projectNumber !== null) {
+                                console.log('Fetching commits for project #', projectNumber);
+                                var listCommand = 'vervids list ' + projectNumber;
+                                console.log('Executing command:', listCommand);
+                                executeVervidsCommand(listCommand, function(commitResponse) {
+                                    console.log('vervids list ' + projectNumber + ' response:', commitResponse);
+                                    console.log('Response success:', commitResponse ? commitResponse.success : 'null');
+                                    console.log('Response stdout:', commitResponse ? commitResponse.stdout : 'null');
+                                    console.log('Response output:', commitResponse ? commitResponse.output : 'null');
+                                    console.log('Response error:', commitResponse ? commitResponse.error : 'null');
+                                    
+                                    if (commitResponse && commitResponse.success) {
+                                        var commitOutput = commitResponse.stdout || commitResponse.output || '';
+                                        console.log('Commit output length:', commitOutput.length);
+                                        console.log('Commit output (first 500 chars):', commitOutput.substring(0, 500));
+                                        var commitData = parseCommitList(commitOutput);
+                                        console.log('Parsed commit data:', commitData);
+                                        console.log('Found', commitData.commits.length, 'commits');
+                                        if (commitData.commits.length > 0) {
+                                            console.log('First commit:', commitData.commits[0]);
+                                        }
+                                        renderCommitGraph(commitData);
+                                    } else {
+                                        console.error('❌ Failed to get commits!');
+                                        console.error('Response:', commitResponse);
+                                        if (commitResponse && commitResponse.error) {
+                                            console.error('Error:', commitResponse.error);
+                                        }
+                                        // Show empty state
+                                        renderCommitGraph({ projectName: projectName, commitCount: 0, commits: [] });
+                                    }
+                                }, true); // silent = true
+                            } else {
+                                console.error('❌ No project found!');
+                                console.log('Project name was:', projectName);
+                                console.log('Available projects:', projectList.projects);
+                                console.log('Current project (arrow):', projectList.currentProject);
+                                // Show empty state with project name if available
+                                renderCommitGraph({ 
+                                    projectName: projectName || 'Unknown Project', 
+                                    commitCount: 0, 
+                                    commits: [] 
+                                });
+                            }
+                        } else {
+                            console.error('Failed to get project list:', response);
+                            if (response && response.error) {
+                                console.error('Error:', response.error);
+                            }
+                            if (response && response.output) {
+                                console.error('Output:', response.output);
+                            }
+                            // Show empty state
+                            renderCommitGraph({ 
+                                projectName: projectName || 'Unknown Project', 
+                                commitCount: 0, 
+                                commits: [] 
+                            });
+                        }
+                    } catch (innerError) {
+                        console.error('❌ Error in vervids list callback:', innerError);
+                        renderCommitGraph({ 
+                            projectName: projectName || 'Unknown Project', 
+                            commitCount: 0, 
+                            commits: [] 
+                        });
                     }
                 }, true); // silent = true
-            } else {
-                console.log('No current project found');
+            } catch (evalError) {
+                console.error('❌ Error in evalScript callback:', evalError);
+                renderCommitGraph({ 
+                    projectName: 'Unknown Project', 
+                    commitCount: 0, 
+                    commits: [] 
+                });
             }
-        } else {
-            console.error('Failed to get project list:', response);
-        }
-    }, true); // silent = true
+        });
+    } catch (error) {
+        console.error('❌ Error in refreshCommitGraph:', error);
+        console.error('Error stack:', error.stack);
+    }
 }
 
 // Auto-initialize vervids when extension opens
 function autoInitialize() {
+    console.log('autoInitialize() called');
     // Wait a bit for server connection to establish
     setTimeout(function() {
+        console.log('Calling refreshCommitGraph() from autoInitialize');
         refreshCommitGraph();
     }, 1500);
 }
