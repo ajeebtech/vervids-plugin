@@ -12,11 +12,22 @@
         <!-- Header -->
         <div class="header">
             <div class="header-title">
-                <span class="icon">📦</span>
+                <span class="icon">
+                    <svg width="16" height="17" viewBox="0 0 95 102" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M30.336 73.344C28.672 77.312 26.496 81.792 26.496 84.992C26.496 90.368 29.312 93.184 33.792 93.184C40.704 93.184 43.52 83.712 45.44 77.952L67.584 11.52C70.272 3.456 75.648 0 82.432 0C88.704 0 94.976 4.736 94.976 14.08C94.976 19.456 90.88 24.704 87.68 29.696L50.56 88.96C44.032 99.456 39.808 101.12 33.28 101.12C27.136 101.12 20.864 97.792 18.56 88.96L2.048 25.472C1.024 21.76 0 17.792 0 14.848C0 5.888 7.168 0 14.848 0C21.76 0 27.008 4.608 26.88 11.904C26.752 17.408 19.072 26.24 17.28 28.416C14.336 32 12.928 35.328 14.848 37.248C17.28 39.68 19.072 37.76 22.4 35.2L31.232 28.16C35.84 24.448 39.04 21.632 42.624 21.632C46.848 21.632 49.536 24.704 49.536 28.16C49.536 31.488 46.976 34.688 44.16 41.216L30.336 73.344Z" fill="currentColor"/>
+                    </svg>
+                </span>
                 <span class="title-text">VERVIDS</span>
             </div>
             <div class="header-actions">
-                <button class="icon-button" id="refresh-button" title="Refresh">🔄</button>
+                <button class="icon-button" id="refresh-button" title="Refresh">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" color="currentColor" fill="none">
+                        <path d="M5.5 3.5L5.5 14.5C5.5 18.2133 8.18503 21 12 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M18.5 20.5L18.5 9.5C18.5 5.78672 15.815 3 12 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M21 18C21 18 19.1588 20.5 18.5 20.5C17.8412 20.5 16 18 16 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M8 5.50022C8 5.50022 6.15878 3.00025 5.49998 3.00024C4.84118 3.00024 3 5.50024 3 5.50024" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
             </div>
         </div>
 
@@ -28,7 +39,13 @@
             </div>
             <div class="changes-list" id="changes-list">
                 <div class="empty-state">
-                    <div class="empty-icon">📝</div>
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64" color="currentColor" fill="none">
+                            <path d="M20 22H6C4.89543 22 4 21.1046 4 20M4 20C4 18.8954 4.89543 18 6 18H20V6C20 4.11438 20 3.17157 19.4142 2.58579C18.8284 2 17.8856 2 16 2H10C7.17157 2 5.75736 2 4.87868 2.87868C4 3.75736 4 5.17157 4 8V20Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M19.5 18C19.5 18 18.5 18.7628 18.5 20C18.5 21.2372 19.5 22 19.5 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M9 10C9 10 11.2095 13 12 13C12.7906 13 15 10 15 10M12 12.5V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
                     <div class="empty-text">No changes detected</div>
                     <div class="empty-hint">Initialize a project to start tracking changes</div>
                 </div>
@@ -66,6 +83,24 @@
 
     <!-- jQuery no longer needed - using native fetch API -->
     <script type="text/javascript" src="./lib/CSInterface.js"></script>
+    <script type="text/javascript">
+        // Try to start server immediately when HTML loads (backup method)
+        (function() {
+            try {
+                if (typeof cep_node !== 'undefined' && cep_node.require) {
+                    console.log('Attempting to start server from HTML...');
+                    try {
+                        var server = cep_node.require('./server/main.js');
+                        console.log('Server started from HTML script tag');
+                    } catch (e) {
+                        console.log('Could not start server from HTML:', e.message);
+                    }
+                }
+            } catch (e) {
+                // cep_node not available yet, will be handled by index.js
+            }
+        })();
+    </script>
     <script type="text/javascript" src="./index.js"></script>
 </body>
 

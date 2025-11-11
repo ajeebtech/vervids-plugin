@@ -63,6 +63,15 @@ body {
 
 .icon {
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon svg {
+    display: block;
+    width: 16px;
+    height: auto;
 }
 
 .title-text {
@@ -83,6 +92,14 @@ body {
     border-radius: 3px;
     font-size: 12px;
     transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-button svg {
+    display: block;
+    stroke: currentColor;
 }
 
 .icon-button:hover {
@@ -203,9 +220,20 @@ body {
 }
 
 .empty-icon {
-    font-size: 48px;
+    font-size: 64px;
     margin-bottom: 12px;
-    opacity: 0.5;
+    opacity: 0.4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--vscode-text-secondary);
+}
+
+.empty-icon svg {
+    display: block;
+    width: 64px;
+    height: 64px;
+    stroke: currentColor;
 }
 
 .empty-text {

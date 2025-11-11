@@ -55,6 +55,7 @@ app.post("/execute", async (req, res) => {
     
     // Build command to execute with proper shell environment
     // On macOS/Linux, use login shell to load user profile (PATH, etc.)
+    // For interactive commands, pipe a newline to skip prompts
     let execCommand;
     if (isWindows) {
       execCommand = command;
@@ -62,8 +63,9 @@ app.post("/execute", async (req, res) => {
       // Use login shell to load user's profile (zsh -l or bash -l)
       // This ensures PATH and other env vars are loaded from ~/.zshrc, ~/.bash_profile, etc.
       // Escape single quotes in the command and wrap in single quotes
+      // Pipe a newline to handle interactive prompts (presses Enter automatically)
       const escapedCommand = command.replace(/'/g, "'\"'\"'");
-      execCommand = `${shell} -l -c '${escapedCommand}'`;
+      execCommand = `printf "\\n" | ${shell} -l -c '${escapedCommand}'`;
     }
     
     console.log(`Full execution command: ${execCommand}`);
