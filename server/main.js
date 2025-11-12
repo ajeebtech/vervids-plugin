@@ -1,5 +1,5 @@
 const express = require("express");
-const { exec } = require("child_process");
+const { exec, spawn } = require("child_process");
 const { promisify } = require("util");
 const execAsync = promisify(exec);
 const path = require("path");
@@ -26,6 +26,9 @@ app.get("/test", (req, res) => {
   res.json({ message: "Welcome to the server." });
 });
 
+// Store background processes
+const backgroundProcesses = new Map();
+
 // Execute vervids command
 app.post("/execute", async (req, res) => {
   try {
@@ -47,6 +50,61 @@ app.post("/execute", async (req, res) => {
     }
 
     console.log(`Executing command: ${command}`);
+
+    // Check if this is a background command (vervids serve)
+    const isBackground = command.includes('vervids serve');
+    
+    if (isBackground) {
+      // Check if already running (simple check - if in map, assume running)
+      if (backgroundProcesses.has('vervids-serve')) {
+        console.log('vervids serve already running (cached)');
+        return res.json({
+          success: true,
+          output: "vervids serve is already running",
+          background: true
+        });
+      }
+
+      // Start in background using spawn
+      const platform = os.platform();
+      const shell = process.env.SHELL || (platform === 'win32' ? 'cmd.exe' : '/bin/zsh');
+      const isWindows = platform === 'win32';
+      
+      let spawnCommand, spawnArgs;
+      if (isWindows) {
+        spawnCommand = 'vervids';
+        spawnArgs = ['serve'];
+      } else {
+        spawnCommand = shell;
+        spawnArgs = ['-l', '-c', 'vervids serve'];
+      }
+
+      const childProcess = spawn(spawnCommand, spawnArgs, {
+        detached: true,
+        stdio: 'ignore',
+        env: process.env
+      });
+
+      // Unref so parent process doesn't wait
+      childProcess.unref();
+      
+      // Store process info
+      backgroundProcesses.set('vervids-serve', childProcess);
+      
+      console.log(`Started vervids serve in background (PID: ${childProcess.pid})`);
+      
+      // Clean up on exit
+      childProcess.on('exit', () => {
+        backgroundProcesses.delete('vervids-serve');
+      });
+
+      return res.json({
+        success: true,
+        output: `vervids serve started in background (PID: ${childProcess.pid})`,
+        background: true,
+        pid: childProcess.pid
+      });
+    }
 
     // Get the user's shell and ensure we use their environment
     const platform = os.platform();

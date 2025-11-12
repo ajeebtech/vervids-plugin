@@ -1,26 +1,4 @@
-/* VS Code Dark Theme Colors */
-:root {
-    --vscode-background: #1e1e1e;
-    --vscode-panel-background: #252526;
-    --vscode-sidebar-background: #252526;
-    --vscode-input-background: #3c3c3c;
-    --vscode-input-border: #3c3c3c;
-    --vscode-text-foreground: #cccccc;
-    --vscode-text-secondary: #858585;
-    --vscode-button-background: #0e639c;
-    --vscode-button-hover: #1177bb;
-    --vscode-border: #3c3c3c;
-    --vscode-badge-background: #0e639c;
-    --vscode-list-hoverBackground: #2a2d2e;
-    --vscode-list-activeBackground: #094771;
-    --vscode-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    
-    /* Animation durations */
-    --transition-fast: 0.15s;
-    --transition-normal: 0.2s;
-    --transition-slow: 0.3s;
-}
-
+/* Reset */
 * {
     margin: 0;
     padding: 0;
@@ -28,31 +6,18 @@
 }
 
 body {
-    font-family: var(--vscode-font-family);
-    background-color: var(--vscode-background);
-    color: var(--vscode-text-foreground);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #1e1e1e;
+    color: #cccccc;
     font-size: 13px;
     overflow: hidden;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
 
 .container {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    width: 100%;
-    animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
 }
 
 /* Header */
@@ -61,8 +26,8 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 8px 12px;
-    background-color: var(--vscode-panel-background);
-    border-bottom: 1px solid var(--vscode-border);
+    background: #252526;
+    border-bottom: 1px solid #3c3c3c;
     height: 35px;
 }
 
@@ -75,6 +40,12 @@ body {
     letter-spacing: 0.5px;
 }
 
+.header-title span:last-child {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-weight: 600;
+    text-transform: lowercase;
+}
+
 .icon {
     font-size: 14px;
     display: flex;
@@ -82,65 +53,32 @@ body {
     justify-content: center;
 }
 
-.icon svg {
+.icon img {
     display: block;
     width: 16px;
-    height: auto;
-}
-
-.title-text {
-    color: var(--vscode-text-foreground);
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-weight: 600;
-}
-
-.header-actions {
-    display: flex;
-    gap: 4px;
+    height: 16px;
 }
 
 .icon-button {
     background: transparent;
     border: none;
-    color: var(--vscode-text-foreground);
+    color: #cccccc;
     cursor: pointer;
     padding: 4px 8px;
     border-radius: 3px;
-    font-size: 12px;
-    transition: transform 0.5s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-
-.icon-button svg {
-    display: block;
-    stroke: currentColor;
-    transition: transform var(--transition-normal) ease;
+    font-size: 14px;
 }
 
 .icon-button:hover {
-    background-color: var(--vscode-list-hoverBackground);
-    transform: translateY(-1px);
+    background: #2a2d2e;
 }
 
-.icon-button:hover svg {
-    transform: rotate(180deg);
-}
-
-.icon-button:active {
-    transform: translateY(0);
-    transition: transform var(--transition-fast) ease;
-}
-
-/* Changes Panel */
-.changes-panel {
+/* Commits Panel */
+.commits-panel {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background-color: var(--vscode-background);
 }
 
 .panel-header {
@@ -148,8 +86,8 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 8px 12px;
-    background-color: var(--vscode-panel-background);
-    border-bottom: 1px solid var(--vscode-border);
+    background: #252526;
+    border-bottom: 1px solid #3c3c3c;
     height: 35px;
 }
 
@@ -158,11 +96,11 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--vscode-text-secondary);
+    color: #858585;
 }
 
 .badge {
-    background-color: var(--vscode-badge-background);
+    background: #0e639c;
     color: white;
     padding: 2px 6px;
     border-radius: 10px;
@@ -170,628 +108,74 @@ body {
     font-weight: 600;
     min-width: 18px;
     text-align: center;
-    transition: all var(--transition-normal) ease;
-    animation: badgePop 0.3s ease-out;
 }
 
-@keyframes badgePop {
-    0% {
-        transform: scale(0);
-        opacity: 0;
-    }
-    50% {
-        transform: scale(1.2);
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.badge:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 4px rgba(14, 99, 156, 0.3);
-}
-
-.changes-list {
+.commits-list {
     flex: 1;
     overflow-y: auto;
     padding: 4px 0;
-    scroll-behavior: smooth;
 }
 
-.changes-list::-webkit-scrollbar {
+.commits-list::-webkit-scrollbar {
     width: 10px;
 }
 
-.changes-list::-webkit-scrollbar-track {
-    background: var(--vscode-background);
+.commits-list::-webkit-scrollbar-track {
+    background: #1e1e1e;
 }
 
-.changes-list::-webkit-scrollbar-thumb {
-    background: var(--vscode-border);
-    border-radius: 5px;
-}
-
-.changes-list::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-.change-item {
-    display: flex;
-    align-items: center;
-    padding: 6px 12px;
-    cursor: pointer;
-    transition: all var(--transition-normal) ease;
-    border-left: 3px solid transparent;
-    animation: slideInLeft 0.3s ease-out;
-}
-
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.change-item:hover {
-    background-color: var(--vscode-list-hoverBackground);
-    transform: translateX(2px);
-}
-
-.change-item.active {
-    background-color: var(--vscode-list-activeBackground);
-    border-left-color: var(--vscode-button-background);
-}
-
-.change-icon {
-    margin-right: 8px;
-    font-size: 14px;
-    width: 16px;
-    text-align: center;
-}
-
-.change-label {
-    flex: 1;
-    font-size: 13px;
-    color: var(--vscode-text-foreground);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.change-status {
-    font-size: 11px;
-    color: var(--vscode-text-secondary);
-    margin-left: 8px;
-    text-transform: uppercase;
-}
-
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    text-align: center;
-    color: var(--vscode-text-secondary);
-    height: 100%;
-    animation: fadeInUp 0.5s ease-out;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.empty-icon {
-    font-size: 64px;
-    margin-bottom: 12px;
-    opacity: 0.4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--vscode-text-secondary);
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 0.4;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.6;
-        transform: scale(1.05);
-    }
-}
-
-.empty-icon svg {
-    display: block;
-    width: 64px;
-    height: 64px;
-    stroke: currentColor;
-    transition: transform var(--transition-normal) ease;
-}
-
-.empty-text {
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 4px;
-    color: var(--vscode-text-foreground);
-}
-
-.empty-hint {
-    font-size: 11px;
-    color: var(--vscode-text-secondary);
-}
-
-/* Command Section - Cursor Style */
-.command-section {
-    padding: 12px;
-    background-color: var(--vscode-background);
-    border-top: 1px solid var(--vscode-border);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.commit-sync-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: #3c3c3c;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 12px;
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--transition-normal) ease;
-    font-family: var(--vscode-font-family);
-    width: 100%;
-    justify-content: flex-start;
-}
-
-.commit-sync-button:hover {
-    background-color: #4a4a4a;
-}
-
-.commit-sync-button:active {
-    transform: scale(0.98);
-    transition: transform var(--transition-fast) ease;
-}
-
-.commit-sync-button svg {
-    display: block;
-    width: 16px;
-    height: 16px;
-    stroke: currentColor;
-    flex-shrink: 0;
-}
-
-.commit-sync-button span {
-    flex: 1;
-    text-align: left;
-}
-
-.commit-separator {
-    width: 1px;
-    height: 16px;
-    background-color: #555;
-    flex-shrink: 0;
-}
-
-.cursor-input-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: #2a2a2a;
-    border-radius: 12px;
-    padding: 10px 12px;
-    transition: all var(--transition-normal) ease;
-}
-
-.cursor-input-container:focus-within {
-    background-color: #2f2f2f;
-}
-
-.cursor-input {
-    flex: 1;
-    background-color: transparent;
-    border: none;
-    color: #d4d4d4;
-    padding: 0;
-    font-size: 13px;
-    outline: none;
-    resize: none;
-    height: 20px;
-    min-height: 20px;
-    max-height: 120px;
-    font-family: var(--vscode-font-family);
-    line-height: 1.5;
-    overflow-y: auto;
-    overflow-x: hidden;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-}
-
-.cursor-input::placeholder {
-    color: #858585;
-}
-
-.cursor-input:focus {
-    outline: none;
-}
-
-.cursor-input::-webkit-scrollbar {
-    width: 6px;
-}
-
-.cursor-input::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.cursor-input::-webkit-scrollbar-thumb {
+.commits-list::-webkit-scrollbar-thumb {
     background: #3c3c3c;
-    border-radius: 3px;
-}
-
-.cursor-input::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-.cursor-send-button {
-    background-color: #3c3c3c;
-    border: none;
-    color: #d4d4d4;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    flex-shrink: 0;
-    transition: all var(--transition-normal) ease;
-}
-
-.cursor-send-button:hover {
-    background-color: #4a4a4a;
-    color: #ffffff;
-    transform: translateY(-1px);
-}
-
-.cursor-send-button:active {
-    transform: translateY(0) scale(0.95);
-    transition: transform var(--transition-fast) ease;
-}
-
-.cursor-send-button:focus {
-    outline: none;
-}
-
-.cursor-send-button:focus-visible {
-    outline: 2px solid rgba(14, 99, 156, 0.5);
-    outline-offset: 2px;
-}
-
-.cursor-send-button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-.cursor-send-button svg {
-    display: block;
-    width: 16px;
-    height: 16px;
-    stroke: currentColor;
-}
-
-.command-history {
-    max-height: 150px;
-    overflow-y: auto;
-    padding: 4px 0;
-    border-top: 1px solid var(--vscode-border);
-    display: none;
-}
-
-.command-history.visible {
-    display: block;
-}
-
-.history-item {
-    padding: 4px 12px;
-    font-family: 'Courier New', monospace;
-    font-size: 11px;
-    color: var(--vscode-text-secondary);
-    cursor: pointer;
-    transition: background-color 0.15s;
-}
-
-.history-item:hover {
-    background-color: var(--vscode-list-hoverBackground);
-}
-
-/* Output Panel */
-.output-panel {
-    border-top: 1px solid var(--vscode-border);
-    background-color: var(--vscode-panel-background);
-    max-height: 200px;
-    display: flex;
-    flex-direction: column;
-    animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-        max-height: 0;
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-        max-height: 200px;
-    }
-}
-
-.output-panel .panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.close-button {
-    background: transparent;
-    border: none;
-    color: var(--vscode-text-secondary);
-    cursor: pointer;
-    padding: 2px 6px;
-    font-size: 14px;
-    border-radius: 3px;
-    transition: all var(--transition-normal) ease;
-    transform: rotate(0deg);
-}
-
-.close-button:hover {
-    background-color: var(--vscode-list-hoverBackground);
-    color: var(--vscode-text-foreground);
-    transform: rotate(90deg) scale(1.1);
-}
-
-.close-button:active {
-    transform: rotate(90deg) scale(0.95);
-}
-
-.output-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px 12px;
-    font-family: 'Courier New', monospace;
-    font-size: 11px;
-    color: var(--vscode-text-foreground);
-    background-color: var(--vscode-background);
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-.output-content::-webkit-scrollbar {
-    width: 10px;
-}
-
-.output-content::-webkit-scrollbar-track {
-    background: var(--vscode-background);
-}
-
-.output-content::-webkit-scrollbar-thumb {
-    background: var(--vscode-border);
     border-radius: 5px;
 }
 
-.output-line {
-    margin-bottom: 2px;
-    animation: fadeInLine 0.2s ease-out;
-    animation-fill-mode: both;
-}
-
-@keyframes fadeInLine {
-    from {
-        opacity: 0;
-        transform: translateX(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.output-line:nth-child(1) { animation-delay: 0s; }
-.output-line:nth-child(2) { animation-delay: 0.05s; }
-.output-line:nth-child(3) { animation-delay: 0.1s; }
-.output-line:nth-child(4) { animation-delay: 0.15s; }
-.output-line:nth-child(5) { animation-delay: 0.2s; }
-
-.output-line.error {
-    color: #f48771;
-}
-
-.output-line.success {
-    color: #89d185;
-}
-
-.output-line.info {
-    color: #4ec9b0;
-}
-
-/* Commit Graph Styles */
-.commit-graph {
-    padding: 2px 0;
-    animation: fadeIn 0.3s ease-out;
-}
-
-.commit-project-header {
-    padding: 4px 10px;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--vscode-text-foreground);
-    border-bottom: 1px solid var(--vscode-border);
-    margin-bottom: 2px;
-    animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+/* Commit Item */
 .commit-item {
     display: flex;
-    padding: 4px 10px;
-    position: relative;
-    transition: all var(--transition-normal) ease;
-    animation: slideInCommit 0.4s ease-out;
-    animation-fill-mode: both;
+    align-items: flex-start;
+    padding: 8px 12px;
+    border-left: 3px solid transparent;
 }
-
-@keyframes slideInCommit {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.commit-item:nth-child(1) { animation-delay: 0s; }
-.commit-item:nth-child(2) { animation-delay: 0.1s; }
-.commit-item:nth-child(3) { animation-delay: 0.2s; }
-.commit-item:nth-child(4) { animation-delay: 0.3s; }
-.commit-item:nth-child(5) { animation-delay: 0.4s; }
-.commit-item:nth-child(n+6) { animation-delay: 0.5s; }
 
 .commit-item:hover {
-    background-color: var(--vscode-list-hoverBackground);
-    transform: translateX(4px);
-    padding-left: 16px;
+    background: #2a2d2e;
 }
 
 .commit-item.commit-latest {
-    background-color: var(--vscode-list-activeBackground);
-    animation: highlightCommit 0.6s ease-out;
-}
-
-@keyframes highlightCommit {
-    0% {
-        background-color: var(--vscode-list-activeBackground);
-        transform: scale(1);
-    }
-    50% {
-        background-color: rgba(14, 99, 156, 0.3);
-        transform: scale(1.02);
-    }
-    100% {
-        background-color: var(--vscode-list-activeBackground);
-        transform: scale(1);
-    }
+    background: rgba(14, 99, 156, 0.1);
+    border-left-color: #0e639c;
 }
 
 .commit-node-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-right: 8px;
-    min-width: 16px;
+    margin-right: 12px;
+    min-width: 20px;
 }
 
 .commit-node {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background-color: var(--vscode-text-secondary);
-    border: 2px solid var(--vscode-background);
-    z-index: 1;
+    background: #858585;
+    border: 2px solid #1e1e1e;
     flex-shrink: 0;
-    transition: all var(--transition-normal) ease;
-    animation: nodePulse 0.5s ease-out;
-}
-
-@keyframes nodePulse {
-    0% {
-        transform: scale(0);
-        opacity: 0;
-    }
-    50% {
-        transform: scale(1.2);
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.commit-item:hover .commit-node {
-    transform: scale(1.2);
-    box-shadow: 0 0 8px rgba(14, 99, 156, 0.5);
 }
 
 .commit-node-latest {
-    background-color: var(--vscode-button-background);
-    width: 11px;
-    height: 11px;
-    border-width: 2px;
-    animation: latestNodePulse 1s ease-out infinite;
-}
-
-@keyframes latestNodePulse {
-    0%, 100% {
-        box-shadow: 0 0 0 0 rgba(14, 99, 156, 0.7);
-    }
-    50% {
-        box-shadow: 0 0 0 4px rgba(14, 99, 156, 0);
-    }
+    background: #0e639c;
+    width: 12px;
+    height: 12px;
+    box-shadow: 0 0 0 2px rgba(14, 99, 156, 0.3);
 }
 
 .commit-line {
     width: 2px;
     flex: 1;
-    background-color: var(--vscode-border);
-    min-height: 24px;
+    background: #3c3c3c;
+    min-height: 20px;
     margin-top: 2px;
-    animation: lineGrow 0.5s ease-out;
-    transform-origin: top;
-}
-
-@keyframes lineGrow {
-    from {
-        transform: scaleY(0);
-        opacity: 0;
-    }
-    to {
-        transform: scaleY(1);
-        opacity: 1;
-    }
 }
 
 .commit-content {
@@ -800,42 +184,147 @@ body {
 }
 
 .commit-message {
-    font-size: 10px;
-    color: var(--vscode-text-foreground);
-    margin-bottom: 1px;
-    line-height: 1.2;
-    word-wrap: break-word;
-    transition: color var(--transition-normal) ease;
-}
-
-.commit-item:hover .commit-message {
-    color: var(--vscode-text-foreground);
+    font-size: 13px;
+    color: #cccccc;
+    margin-bottom: 4px;
+    font-weight: 500;
 }
 
 .commit-item.commit-latest .commit-message {
-    font-weight: 500;
-    animation: textGlow 2s ease-in-out infinite;
-}
-
-@keyframes textGlow {
-    0%, 100% {
-        text-shadow: none;
-    }
-    50% {
-        text-shadow: 0 0 8px rgba(14, 99, 156, 0.3);
-    }
+    font-weight: 600;
 }
 
 .commit-meta {
     display: flex;
-    gap: 6px;
-    font-size: 9px;
-    color: var(--vscode-text-secondary);
+    gap: 8px;
+    font-size: 11px;
+    color: #858585;
     flex-wrap: wrap;
 }
 
 .commit-time,
 .commit-size,
-.commit-assets {
+.commit-assets,
+.commit-number {
     white-space: nowrap;
+}
+
+.commit-number {
+    color: #0e639c;
+    font-weight: 600;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: #858585;
+    height: 100%;
+}
+
+.empty-text {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #cccccc;
+}
+
+.empty-text.error {
+    color: #f48771;
+}
+
+/* Commit Section */
+.commit-section {
+    border-top: 1px solid #3c3c3c;
+    background: #252526;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Shadcn Input Style */
+.shadcn-input {
+    height: 36px;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #3c3c3c;
+    background: #1e1e1e;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #cccccc;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.shadcn-input::placeholder {
+    color: #858585;
+}
+
+.shadcn-input:hover {
+    border-color: #4c4c4c;
+}
+
+.shadcn-input:focus {
+    border-color: #0e639c;
+    box-shadow: 0 0 0 2px rgba(14, 99, 156, 0.2);
+}
+
+.shadcn-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Shadcn Button Style */
+.shadcn-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    height: 36px;
+    padding: 0 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: 1px solid #3c3c3c;
+    background: #2a2d2e;
+    color: #cccccc;
+    outline: none;
+}
+
+.shadcn-button:hover {
+    background: #35393a;
+    border-color: #4c4c4c;
+    color: #ffffff;
+}
+
+.shadcn-button:active {
+    background: #1e1e1e;
+}
+
+.shadcn-button:focus-visible {
+    outline: 2px solid #0e639c;
+    outline-offset: 2px;
+}
+
+/* Text Button Variant (with icon and text) */
+.shadcn-button-text {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+.shadcn-button-text svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.shadcn-button-text span {
+    text-transform: lowercase;
 }
